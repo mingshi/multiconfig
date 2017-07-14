@@ -21,7 +21,7 @@ func (c *Conf) GetConf() string { return c.Conf }
 
 // LoadInTurn load configuration from tag/json/yml/yaml/toml/env/flag(from low to heigh) and validate.
 // Configuration file in $PWD/conf/$app.{json,yml,yaml/toml}.
-func LoadInTurn(app string, conf Confer) error {
+func LoadInTurn(conf Confer) error {
 	flagLoader := &FlagLoader{
 		Prefix:        "",
 		Flatten:       false,
@@ -32,10 +32,10 @@ func LoadInTurn(app string, conf Confer) error {
 
 	for _, loader := range []Loader{
 		&TagLoader{},
-		&JSONLoader{Path: "conf/" + app + ".json"},
-		&YAMLLoader{Path: "conf/" + app + ".yml"},
-		&YAMLLoader{Path: "conf/" + app + ".yaml"},
-		&TOMLLoader{Path: "conf/" + app + ".toml"},
+		&JSONLoader{Path: "conf/conf.json"},
+		&YAMLLoader{Path: "conf/conf.yml"},
+		&YAMLLoader{Path: "conf/conf.yaml"},
+		&TOMLLoader{Path: "conf/conf.toml"},
 		&EnvironmentLoader{Prefix: app, CamelCase: true},
 		flagLoader,
 	} {
