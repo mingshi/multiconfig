@@ -26,7 +26,6 @@ func LoadInTurn(conf Confer) error {
 		Prefix:        "",
 		Flatten:       false,
 		CamelCase:     true,
-		EnvPrefix:     app,
 		ErrorHandling: flag.ExitOnError,
 	}
 
@@ -36,7 +35,7 @@ func LoadInTurn(conf Confer) error {
 		&YAMLLoader{Path: "conf/conf.yml"},
 		&YAMLLoader{Path: "conf/conf.yaml"},
 		&TOMLLoader{Path: "conf/conf.toml"},
-		&EnvironmentLoader{Prefix: app, CamelCase: true},
+		&EnvironmentLoader{CamelCase: true},
 		flagLoader,
 	} {
 		loader.Load(conf)
