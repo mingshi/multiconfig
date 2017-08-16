@@ -3,12 +3,15 @@ package multiconfig
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/arstd/log"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -115,25 +118,42 @@ func (y *YAMLLoader) Load(s interface{}) error {
 	return yaml.Unmarshal(data, s)
 }
 
-func getConfig(path string) (*os.File, error) {
-	pwd, err := os.Getwd()
+func getConfig(path string) (f *os.File, err error) {
+	if filepath.IsAbs(path) {
+		f, err = os.Open(path)
+		if os.IsNotExist(err) {
+			return nil, fmt.Errorf("file %s not exist", path)
+		}
+		log.Infof("read conf file %s", path)
+		return f, err
+	}
+
+	var pwd string
+	pwd, err = os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
-	configPath := path
-	if !filepath.IsAbs(path) {
-		configPath = filepath.Join(pwd, path)
-	}
+	for {
+		if len(pwd) <= 1 {
+			return nil, fmt.Errorf("file %s not exist", path)
+		}
 
-	// check if file with combined path is exists(relative path)
-	if _, err := os.Stat(configPath); !os.IsNotExist(err) {
-		return os.Open(configPath)
-	}
+		abs := filepath.Join(pwd, path)
+		f, err = os.Open(abs)
+		if err == nil {
+			log.Infof("read conf file %s", abs)
+			return f, nil
+		}
 
-	f, err := os.Open(path)
-	if os.IsNotExist(err) {
-		return nil, ErrFileNotFound
+		if !os.IsNotExist(err) {
+			return nil, err
+		}
+
+		i := strings.LastIndexByte(pwd, filepath.Separator)
+		if i == -1 {
+			return nil, fmt.Errorf("file %s not exist", path)
+		}
+		pwd = pwd[:i]
 	}
-	return f, err
 }

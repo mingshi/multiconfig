@@ -59,10 +59,13 @@ type FlagLoader struct {
 // Load loads the source into the config defined by struct s
 func (f *FlagLoader) Load(s interface{}) error {
 	strct := structs.New(s)
-	structName := strct.Name()
 
-	flagSet := flag.NewFlagSet(structName, f.ErrorHandling)
-	f.flagSet = flagSet
+	// structName := strct.Name()
+	// flagSet := flag.NewFlagSet(structName, f.ErrorHandling)
+	// f.flagSet = flagSet
+
+	flagSet := flag.CommandLine
+	f.flagSet = flag.CommandLine
 
 	for _, field := range strct.Fields() {
 		f.processField(field.Name(), field)

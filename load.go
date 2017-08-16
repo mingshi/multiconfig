@@ -3,6 +3,8 @@ package multiconfig
 import (
 	"flag"
 	"strings"
+
+	"github.com/arstd/log"
 )
 
 // Confer get flags' configuration file, if not blank, load this configuration file
@@ -38,7 +40,9 @@ func LoadInTurn(conf Confer) error {
 		&EnvironmentLoader{CamelCase: true},
 		flagLoader,
 	} {
-		loader.Load(conf)
+		if err := loader.Load(conf); err != nil {
+			log.Warn(err)
+		}
 	}
 
 	if conf.GetConf() != "" {
